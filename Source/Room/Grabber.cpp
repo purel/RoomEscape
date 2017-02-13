@@ -31,6 +31,8 @@ void UGrabber::TickComponent( float DeltaTime, ELevelTick TickType, FActorCompon
 {
 	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
 
+	if (!pHandle)
+		return;
 	if (pHandle->GrabbedComponent)
 	{
 		pHandle->SetTargetLocation(GetReachLineEnd());
@@ -44,11 +46,15 @@ void UGrabber::Grab()
 	auto componentToGrab = hitResult.GetComponent();
 	auto hitActor = hitResult.GetActor();
 
+	if (!pHandle)
+		return;
 	if(hitActor)
 	pHandle->GrabComponent(componentToGrab, NAME_None, componentToGrab->GetOwner()->GetActorLocation(), true);
 }
 void UGrabber::Release()
 {
+	if (!pHandle)
+		return;
 	pHandle->ReleaseComponent();
 }
 //Find physics handle

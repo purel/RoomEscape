@@ -21,10 +21,12 @@ void UDoor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// 
+	// find player
 	Owner = GetOwner();
-	Player = GetWorld()->GetFirstPlayerController()->GetPawn();
-	
+	if (!pressTrigger)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Missing pressure trigger volumn!"));
+	}
 }
 
 
@@ -34,36 +36,20 @@ void UDoor::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponent
 	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
 
 	if (GetTotalMassOver() > triggerMass)
-	{
-		OpenDoor();
-		lastOpenTime = GetWorld()->GetTimeSeconds();
-	}
-	if (GetWorld()->GetTimeSeconds() - lastOpenTime >= doorCloseDelay)
-		CloseDoor();
-
-}
-
-void UDoor::OpenDoor()
-{
-	Owner->SetActorRotation(FRotator(0.f, openAngle, 0.f));
-}
-
-void UDoor::CloseDoor()
-{
-	Owner->SetActorRotation(FRotator(0.f, 0.f, 0.f));
+		OnOpen.Broadcast();
+	else
+		OnClose.Broadcast();
 }
 
 float UDoor::GetTotalMassOver()
 {
 	float totalMass = 0.f;
 	TArray<AActor*> overlappingActors;
+	if (!pressTrigger)
+		return 0.f;
 	pressTrigger->GetOverlappingActors(overlappingActors);
 	for (const auto Actor : overlappingActors)
-	{
 		totalMass += Actor->FindComponentByClass<UPrimitiveComponent>()->GetMass();
-		UE_LOG(LogTemp, Warning, TEXT("The total mass is: %f"), totalMass);
-	}
-	
 	return totalMass;
 }
 
